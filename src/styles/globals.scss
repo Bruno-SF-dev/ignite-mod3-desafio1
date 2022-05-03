@@ -4,4 +4,21 @@
   padding: 0;
 }
 
-// TODO
+:root {
+  --background: #1a1d23;
+  --highlight: #ff57b2;
+  --heading: #f8f8f8;
+  --info: #bbbbbb;
+  --body: #d7d7d7;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--body);
+  font-family: 'Inter', sans-serif;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+}
