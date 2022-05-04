@@ -30,10 +30,30 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home({ postsPagination }: HomeProps) {
-  console.log(postsPagination);
+type NextPage = string | null;
 
+export default function Home({ postsPagination }: HomeProps) {
   const [posts, setPosts] = useState<Post[]>(postsPagination.results);
+  const [nextPage, setNextPage] = useState<NextPage>(postsPagination.next_page);
+
+  async function handleLoadMorePosts() {
+    const data = await fetch(`${nextPage}`).then(response => response.json());
+
+    const newPosts = data.results.map(post => ({
+      uid: post.uid,
+      first_publication_date: post.first_publication_date,
+      data: {
+        title: post.data.title[0].text || post.data.title,
+        subtitle: post.data.subtitle[0].text || post.data.subtitle,
+        author: post.data.author[0].text || post.data.author,
+      },
+    }));
+
+    console.log(data);
+
+    setPosts([...posts, ...newPosts]);
+    setNextPage(data.next_page);
+  }
 
   return (
     <>
@@ -43,14 +63,20 @@ export default function Home({ postsPagination }: HomeProps) {
       <main className={`${styles.container} ${commonStyles.maxContainer}`}>
         <div className={styles.posts}>
           {posts.map(post => (
-            <Link href="/" key={post.uid}>
+            <Link href={`post/${post.uid}`} key={post.uid}>
               <a>
                 <strong>{post.data.title}</strong>
                 <p>{post.data.subtitle}</p>
                 <div className={styles.info}>
                   <span>
                     <FiCalendar color="#BBBBBB" size={20} />{' '}
-                    {post.first_publication_date}
+                    {format(
+                      new Date(post.first_publication_date),
+                      'dd MMM yyyy',
+                      {
+                        locale: ptBR,
+                      }
+                    )}
                   </span>
                   <span>
                     <FiUser color="#BBBBBB" size={20} /> {post.data.author}
@@ -60,7 +86,14 @@ export default function Home({ postsPagination }: HomeProps) {
             </Link>
           ))}
         </div>
-        <button className={styles.loadMoreButton}>Carregar mais posts</button>
+        {!!nextPage && (
+          <button
+            className={styles.loadMoreButton}
+            onClick={handleLoadMorePosts}
+          >
+            Carregar mais posts
+          </button>
+        )}
       </main>
     </>
   );
@@ -70,21 +103,16 @@ export const getStaticProps: GetStaticProps = async ({ previewData }) => {
   const prismic = getPrismicClient({});
 
   const postsResponse = await prismic.getByType('desafio-posts', {
-    pageSize: 2,
+    pageSize: 1,
   });
 
   const results = postsResponse.results.map(result => ({
-    first_publication_date: format(
-      new Date(result.first_publication_date),
-      'dd MMM yyyy',
-      {
-        locale: ptBR,
-      }
-    ),
+    uid: result.uid,
+    first_publication_date: result.first_publication_date,
     data: {
-      title: result.data.title[0].text,
-      subtitle: result.data.subtitle[0].text,
-      author: result.data.author[0].text,
+      title: result.data.title[0].text || result.data.title,
+      subtitle: result.data.subtitle[0].text || result.data.subtitle,
+      author: result.data.author[0].text || result.data.author,
     },
   }));
 
