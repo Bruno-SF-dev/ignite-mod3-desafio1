@@ -55,9 +55,6 @@ export default function Post({ post }: PostProps) {
     totalWords / 200 // considerando que a leitura humana seja 200palavras/min
   );
 
-  console.log(totalWords);
-  console.log(readTime);
-
   return (
     <>
       <Head>
@@ -124,7 +121,7 @@ export const getStaticProps = async ({ params }) => {
 
   const content = response.data.content.map(content => {
     return {
-      heading: content.heading[0].text,
+      heading: content.heading[0].text || content.heading,
       body: [...content.body],
     };
   });
@@ -134,6 +131,7 @@ export const getStaticProps = async ({ params }) => {
     first_publication_date: response.first_publication_date,
     data: {
       title: response.data.title[0].text || response.data.title,
+      subtitle: response.data.subtitle[0].text || response.data.subtitle,
       banner: {
         url: response.data.banner.url,
       },
