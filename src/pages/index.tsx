@@ -5,11 +5,11 @@ import { useState } from 'react';
 
 import { getPrismicClient } from '../services/prismic';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { FiCalendar, FiUser } from 'react-icons/fi';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
-import { ptBR } from 'date-fns/locale';
 
 interface Post {
   uid?: string;
