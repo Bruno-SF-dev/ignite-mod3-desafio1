@@ -113,7 +113,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params;
 
   const prismic = getPrismicClient({});
@@ -144,5 +144,6 @@ export const getStaticProps = async ({ params }) => {
 
   return {
     props: { post },
+    revalidate: 60 * 60 * 24, // 24hrs
   };
 };
